@@ -10,6 +10,7 @@ const GRACE_MS = 400 // запас на сетевую задержку: отв�
 const KEEP_FINISHED_MS = 30 * 60 * 1000
 const STALE_ROOM_MS = 6 * 60 * 60 * 1000
 const MAX_PLAYERS = 300
+const RECONNECT_WINDOW_MS = 5000
 
 const rooms = new Map()
 let io = null
@@ -234,10 +235,16 @@ function abort(room) {
   for (const channel of channels) io.to(channel).emit('closed', { reason: 'Организатор закрыл комнату' })
 }
 
+// Вопрос закрывается досрочно, когда ответили все, кто на связи. Игрок, пропавший
+// на несколько секунд (обновил страницу, моргнула сеть), ещё считается «на связи» —
+// иначе вопрос закрылся бы у него перед носом.
 function maybeRevealEarly(room) {
   if (room.phase !== 'question') return
-  const online = [...room.players.values()].filter((p) => p.sockets.size > 0)
-  if (online.length > 0 && online.every((p) => p.answers.has(room.index))) reveal(room)
+  const now = Date.now()
+  const waitingFor = [...room.players.values()].some(
+    (p) => !p.answers.has(room.index) && (p.sockets.size > 0 || now - p.leftAt < RECONNECT_WINDOW_MS)
+  )
+  if (!waitingFor) reveal(room)
 }
 
 function sameSet(a, b) {
@@ -328,6 +335,7 @@ function joinAsPlayer(socket, payload) {
       totalTime: 0,
       answers: new Map(),
       sockets: new Set(),
+      leftAt: 0,
     }
     room.players.set(player.id, player)
   }
@@ -410,8 +418,8 @@ function attach(server) {
       const { room, player } = socket.data
       if (!room || !player || !rooms.has(room.code)) return
       player.sockets.delete(socket.id)
+      if (player.sockets.size === 0) player.leftAt = Date.now()
       emitHost(room)
-      maybeRevealEarly(room)
     })
   })
 

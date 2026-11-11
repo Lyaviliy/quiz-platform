@@ -317,3 +317,24 @@ test('удаление квиза не ломает историю провед�
   assert.equal(results.body.session.title, 'Тестовый квиз')
   assert.equal(results.body.questions.length, 2)
 })
+
+test('игрок обновил страницу — вопрос не закрывается у него перед носом', async () => {
+  const { hostSocket, code } = await launch()
+  const stays = client()
+  const reloads = client()
+  await stays.ask('player:join', { code, nickname: 'Остаётся' })
+  const { token } = await reloads.ask('player:join', { code, nickname: 'Обновляет' })
+  await hostSocket.ask('host:start')
+  await reloads.until((s) => s.phase === 'question')
+
+  reloads.close()
+  await hostSocket.until((s) => s.players.some((p) => !p.connected), 'организатор видит отключение')
+  await stays.ask('player:answer', { index: 0, selected: [0] })
+  await hostSocket.until((s) => s.answeredCount === 1)
+  assert.equal(hostSocket.state.phase, 'question', 'вопрос должен дождаться вернувшегося игрока')
+
+  const back = client()
+  await back.ask('player:join', { code, token })
+  assert.equal((await back.ask('player:answer', { index: 0, selected: [1] })).ok, true)
+  await hostSocket.until((s) => s.phase === 'reveal', 'после ответа вернувшегося вопрос закрывается')
+})

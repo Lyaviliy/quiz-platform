@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Unbounded", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #140f2d;
+  --color-ink-2: #1e1742;
+  --color-accent: #c6f432;
+  --color-accent-dark: #a9d81a;
+}
+
+html {
+  background: var(--color-ink);
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  color: #fff;
+  background:
+    radial-gradient(60rem 40rem at 110% -10%, rgb(124 58 237 / 0.35), transparent 60%),
+    radial-gradient(50rem 36rem at -20% 110%, rgb(225 29 72 / 0.22), transparent 60%),
+    var(--color-ink);
+  background-attachment: fixed;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes rise {
+  0% { transform: translateY(40%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+.animate-pop { animation: pop 0.25s ease-out both; }
+.animate-rise { animation: rise 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.animate-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop, .animate-rise, .animate-dot { animation: none; }
+}
