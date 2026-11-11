@@ -12,7 +12,8 @@
     "dev:server": "node --watch server/index.js",
     "dev:client": "npm run dev --prefix client",
     "build": "npm install --prefix client && npm run build --prefix client",
-    "test": "node --test"
+    "test": "node --test",
+    "lint": "oxlint server client/src tests"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -25,6 +26,7 @@
     "socket.io": "^4.8.4"
   },
   "devDependencies": {
+    "oxlint": "^1.93.0",
     "socket.io-client": "^4.8.4"
   }
 }

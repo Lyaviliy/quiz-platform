@@ -54,11 +54,9 @@ function client(cookie) {
   socket.state = null
   socket.on('state', (state) => {
     socket.state = state
-    for (const w of [...waiters]) {
-      if (w.check(state)) {
-        waiters.splice(waiters.indexOf(w), 1)
-        w.resolve(state)
-      }
+    for (const w of waiters.filter((waiter) => waiter.check(state))) {
+      waiters.splice(waiters.indexOf(w), 1)
+      w.resolve(state)
     }
   })
   socket.until = (check, label = 'состояние') =>

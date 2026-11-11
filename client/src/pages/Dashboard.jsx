@@ -108,6 +108,7 @@ export default function Dashboard() {
   }, [isOrganizer])
 
   useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect -- загрузка данных с сервера, состояние меняется после ответа
     load()
   }, [load])
 

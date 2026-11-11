@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { CircleCheck, CircleX, Clock, PartyPopper } from 'lucide-react'
 import { useRoom } from '../useRoom.js'
@@ -34,9 +34,8 @@ function NicknameForm({ code, error, onJoin }) {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             maxLength={20}
-            autoComplete="nickname"
+            autoComplete="off"
             placeholder="Имя на табло"
-            autoFocus
           />
           <ErrorNote>{error}</ErrorNote>
           <Button type="submit" loading={busy} disabled={!nickname.trim()} className="text-lg">
@@ -82,12 +81,6 @@ function Question({ state, send }) {
   const [picked, setPicked] = useState([])
   const [error, setError] = useState(null)
   const [sending, setSending] = useState(false)
-
-  // Новый вопрос — чистый выбор.
-  useEffect(() => {
-    setPicked([])
-    setError(null)
-  }, [question.index])
 
   async function submit(selected) {
     setSending(true)
@@ -175,7 +168,8 @@ export default function Play() {
           </div>
         )}
 
-        {phase === 'question' && <Question state={state} send={send} />}
+        {/* key сбрасывает выбранные варианты при переходе к новому вопросу */}
+        {phase === 'question' && <Question key={question.index} state={state} send={send} />}
 
         {phase === 'reveal' && (
           <>

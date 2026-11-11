@@ -78,7 +78,7 @@ function createRoom(quiz, hostId) {
 
 function ranking(room) {
   return [...room.players.values()]
-    .sort((a, b) => b.score - a.score || a.totalTime - b.totalTime || a.id - b.id)
+    .toSorted((a, b) => b.score - a.score || a.totalTime - b.totalTime || a.id - b.id)
     .map((p, i) => ({
       id: p.id, nickname: p.nickname, score: p.score, correctCount: p.correctCount, place: i + 1,
     }))
